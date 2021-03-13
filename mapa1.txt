@@ -3,8 +3,8 @@ X H X
 X X X
 X X X
 X   X
-  X
- XXX
-  X
+  X  
+ XXX 
+  X  
 X F X
 XXXXX

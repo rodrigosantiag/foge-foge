@@ -40,7 +40,7 @@ def posicao_valida?(mapa, posicao)
   linhas = mapa.size
   colunas = mapa[0].size
 
-  estourou_linha  = posicao[0].negative? || posicao[0] >= linhas
+  estourou_linha = posicao[0].negative? || posicao[0] >= linhas
   estourou_coluna = posicao[1].negative? || posicao[1] >= colunas
 
   return false if estourou_linha || estourou_coluna
@@ -52,26 +52,56 @@ def posicao_valida?(mapa, posicao)
   true
 end
 
-def move_fantasma(mapa, linha, coluna)
-  posicao = [linha, coluna + 1]
-  if posicao_valida? mapa, posicao
-    mapa[linha][coluna] = ' '
-    mapa[posicao[0]][posicao[1]] = 'F'
+def posicoes_validas_a_partir_de(mapa, novo_mapa, posicao)
+  posicoes = []
+  cima = [posicao[0] + 1, posicao[1]]
+  if posicao_valida?( mapa, cima) && posicao_valida?(novo_mapa, cima)
+    posicoes << cima
   end
+  direita = [posicao[0], posicao[1] + 1]
+  if posicao_valida?(mapa, direita) && posicao_valida?(novo_mapa, direita)
+    posicoes << direita
+  end
+  baixo = [posicao[0] - 1, posicao[1]]
+  if posicao_valida?(mapa, baixo) && posicao_valida?(novo_mapa, baixo)
+    posicoes << baixo
+  end
+  esquerda = [posicao[0], posicao[1] - 1]
+  if posicao_valida?(mapa, esquerda) && posicao_valida?(novo_mapa, esquerda)
+    posicoes << esquerda
+  end
+
+  posicoes
+end
+
+def move_fantasma(mapa, novo_mapa, linha, coluna)
+  posicoes = posicoes_validas_a_partir_de mapa, novo_mapa, [linha, coluna]
+
+  return if posicoes.empty?
+
+  posicao = posicoes[0]
+  mapa[linha][coluna] = ' '
+  novo_mapa[posicao[0]][posicao[1]] = 'F'
+end
+
+def copia_mapa(mapa)
+  mapa.join("\n").tr('F', ' ').split("\n")
 end
 
 def move_fantasmas(mapa)
   caractere_do_fantasma = 'F'
+  novo_mapa = copia_mapa mapa
 
   mapa.each_with_index do |linha_atual, linha|
     linha_atual.chars.each_with_index do |caracter_atual, coluna|
       eh_fantasma = caracter_atual == caractere_do_fantasma
 
       if eh_fantasma
-        move_fantasma mapa, linha, coluna
+        move_fantasma mapa, novo_mapa, linha, coluna
       end
     end
   end
+  novo_mapa
 end
 
 def joga(nome)
@@ -89,7 +119,7 @@ def joga(nome)
     mapa[heroi[0]][heroi[1]] = ' '
     mapa[nova_posicao[0]][nova_posicao[1]] = 'H'
 
-    move_fantasmas mapa
+    mapa = move_fantasmas mapa
   end
 
 end
